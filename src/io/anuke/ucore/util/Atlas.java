@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 
 
@@ -33,6 +34,34 @@ public class Atlas extends TextureAtlas{
     /** Empty constructor. Does not load resources. Internal use only. */
     public Atlas(){
 
+    }
+
+    /**
+     * Merges pack file data into this atlas.
+     * Sprite pages: regions are built straight from the pack file's integer
+     * pixel bounds (no UV round trips), page textures are registered with the
+     * atlas so {@link #dispose()} frees them, every new region is indexed in
+     * the lookup map and the error region is refreshed so missing names fall
+     * back to it instead of throwing.
+     */
+    @Override
+    public void load(TextureAtlasData data){
+        Array<AtlasRegion> regions = getRegions();
+        int before = regions.size;
+        super.load(data);
+        // during super(file) construction regionmap is not initialized yet;
+        // the constructor repopulates it from getRegions() afterwards
+        if(regionmap == null) return;
+        for(int i = before; i < regions.size; i++){
+            AtlasRegion region = regions.get(i);
+            regionmap.put(region.name, region);
+        }
+        error = regionmap.get("error", error);
+    }
+
+    /** Merges every region of another pack file into this atlas. */
+    public void add(FileHandle packFile){
+        load(new TextureAtlasData(packFile, packFile.parent(), false));
     }
 
     /**
