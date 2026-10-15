@@ -60,7 +60,9 @@ public class Entities{
         }
 
         for(Entity e : group.all()){
-            e.update();
+            if(e.getGroup() != null){
+                e.update();
+            }
         }
     }
 }
