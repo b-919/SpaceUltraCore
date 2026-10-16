@@ -40,8 +40,10 @@ public class Dialog extends Window{
     //TODO just make this work properly by calculating padding
     public static float closePadT, closePadR;
 
+    private static final Supplier<Action>
+            DEFAULT_FADE_IN = () -> Actions.sequence(Actions.alpha(0), Actions.fadeIn(0.4f, Interpolation.fade));
     private static Supplier<Action>
-            defaultShowAction = () -> Actions.sequence(Actions.alpha(0), Actions.fadeIn(0.4f, Interpolation.fade)),
+            defaultShowAction = DEFAULT_FADE_IN,
             defaultHideAction = () -> Actions.fadeOut(0.4f, Interpolation.fade);
     protected InputListener ignoreTouchDown = new InputListener(){
         public boolean touchDown(InputEvent event, float x, float y, int pointer, int button){
@@ -225,6 +227,8 @@ public class Dialog extends Window{
 
     /** {@link #pack() Packs} the dialog and adds it to the stage, centered with default fadeIn action */
     public Dialog show(Scene stage){
+        if(defaultShowAction == DEFAULT_FADE_IN) getColor().a = 0f;
+
         show(stage, defaultShowAction.get());
         setPosition(Math.round((stage.getWidth() - getWidth()) / 2), Math.round((stage.getHeight() - getHeight()) / 2));
         return this;
