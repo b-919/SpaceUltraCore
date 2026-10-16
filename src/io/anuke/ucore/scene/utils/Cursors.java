@@ -27,14 +27,18 @@ public class Cursors{
 
         if(!MathUtils.isPowerOfTwo(out2.getWidth())){
             Pixmap old = out2;
-            out2 = Pixmaps.resize(out2, MathUtils.nextPowerOfTwo(out2.getWidth()), MathUtils.nextPowerOfTwo(out2.getWidth()));
+        int pw = MathUtils.nextPowerOfTwo(out2.getWidth());
+        int ph = MathUtils.nextPowerOfTwo(out2.getHeight());
+        out2 = Pixmaps.resize(out2, pw, ph);
             old.dispose();
         }
 
         out.dispose();
         pixmap.dispose();
 
-        return Gdx.graphics.newCursor(out2, out2.getWidth() / 2, out2.getHeight() / 2);
+        Cursor cursor = Gdx.graphics.newCursor(out2, out2.getWidth() / 2, out2.getHeight() / 2);
+        out2.dispose();
+        return cursor;
     }
 
     public static void loadCustom(String name){

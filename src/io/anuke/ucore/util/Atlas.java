@@ -115,10 +115,25 @@ public class Atlas extends TextureAtlas{
     @Override
     public AtlasRegion findRegion(String name){
         AtlasRegion r = regionmap.get(name);
-        if(r == null && error == null && !(name.equals("error")))
-            throw new IllegalArgumentException("The region \"" + name + "\" does not exist!");
+        if(r == null && !name.equals("error")){
+            if(error != null) return error;
+        }
         if(r == null) return error;
         return r;
+    }
+
+    public AtlasRegion getRegion(String name){
+        return findRegion(name);
+    }
+
+    public AtlasRegion getRegion(String name, AtlasRegion def){
+        AtlasRegion region = regionmap.get(name);
+        return region == null ? def : region;
+    }
+
+    public TextureRegion getRegion(String name, TextureRegion def){
+        AtlasRegion region = regionmap.get(name);
+        return region == null ? def : region;
     }
 
     public float regionHeight(String name){
@@ -136,17 +151,7 @@ public class Atlas extends TextureAtlas{
 
     public void dispose(){
         super.dispose();
-        for(Pixmap pixmap : pixmaps.values()){
-            pixmap.dispose();
-        }
-    }
-
-    public TextureRegion getRegion(String name){
-        return findRegion(name);
-    }
-
-    public TextureRegion getRegion(String name, TextureRegion def){
-        TextureRegion region = regionmap.get(name);
-        return region == null ? def : region;
+        for(Pixmap pixmap : pixmaps.values()) pixmap.dispose();
+        pixmaps.clear();
     }
 }

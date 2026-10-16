@@ -20,7 +20,7 @@ import io.anuke.ucore.util.OS;
 public class Inputs{
     private static final float deadzone = 0.3f;
     private static boolean useControllers = true;
-    private static boolean[] buttons = new boolean[5];
+    private static boolean[] buttons = new boolean[16];
     private static IntSet keysReleased = new IntSet();
     private static InputMultiplexer plex = new InputMultiplexer();
     private static int scroll = 0;
@@ -29,7 +29,7 @@ public class Inputs{
     private static InputProcessor listen = new InputAdapter(){
         @Override
         public boolean scrolled(float amountX, float amountY){
-            scroll = -(int)amountY;
+            scroll += -(int)amountY;
             return false;
         }
 
@@ -150,7 +150,15 @@ public class Inputs{
     /** Call this at the end of each render loop. */
     public static void update(){
         for(int i = 0; i < buttons.length; i++){
-            buttons[i] = Gdx.input.isButtonPressed(i);
+            if(i > 7){
+                buttons[i] = false;
+                continue;
+            }
+            try {
+                buttons[i] = Gdx.input.isButtonPressed(i);
+            } catch (Exception e) {
+                buttons[i] = false;
+            }
         }
         scroll = 0;
         for(InputDevice device : devices){
@@ -212,7 +220,7 @@ public class Inputs{
         }else if(input.type == Input.Type.key){
             return input.code >= 0 && Gdx.input.isKeyPressed(input.code);
         }else if(input.type == Input.Type.mouse){
-            return Gdx.input.isButtonPressed(input.code);
+            return input.code >= 0 && input.code < buttons.length && Gdx.input.isButtonPressed(input.code);
         }
         return false;
     }
@@ -242,7 +250,7 @@ public class Inputs{
         }else if(input.type == Input.Type.key){
             return Gdx.input.isKeyJustPressed(input.code);
         }else if(input.type == Input.Type.mouse){
-            return Gdx.input.isButtonPressed(input.code) && !buttons[input.code];
+            return input.code >= 0 && input.code < buttons.length && Gdx.input.isButtonPressed(input.code) && !buttons[input.code];
         }
         return false;
     }
@@ -271,19 +279,18 @@ public class Inputs{
         }else if(input.type == Input.Type.key){
             return keysReleased.contains(input.code);
         }else if(input.type == Input.Type.mouse){
-            return !Gdx.input.isButtonPressed(input.code) && buttons[input.code];
+            return input.code >= 0 && input.code < buttons.length && !Gdx.input.isButtonPressed(input.code) && buttons[input.code];
         }
         return false;
     }
 
     public static boolean keyRelease(String section, String name){
+        if(!KeyBinds.has(section, name)){
+            return false;
+        }
         KeyBinds.Section s = KeyBinds.getSection(section);
         Input input = (Input) KeyBinds.get(section, name);
-        if(KeyBinds.has(section, name)){
-            return keyRelease(input, s.device);
-        }else{
-            return keyRelease(input, getKeyboard());
-        }
+        return keyRelease(input, s.device);
     }
 
     public static boolean getAxisActive(String axis){
@@ -348,19 +355,20 @@ public class Inputs{
     }
 
     public static InputDevice getKeyboard(){
+        if(devices.size == 0) return new InputDevice(DeviceType.keyboard, "keyboard");
         return devices.get(0);
     }
 
     public static boolean buttonDown(int button){
-        return Gdx.input.isButtonPressed(button);
+        return button >= 0 && button < buttons.length && Gdx.input.isButtonPressed(button);
     }
 
     public static boolean buttonUp(int button){
-        return Gdx.input.isButtonPressed(button) && !buttons[button];
+        return button >= 0 && button < buttons.length && Gdx.input.isButtonPressed(button) && !buttons[button];
     }
 
     public static boolean buttonRelease(int button){
-        return !Gdx.input.isButtonPressed(button) && buttons[button];
+        return button >= 0 && button < buttons.length && !Gdx.input.isButtonPressed(button) && buttons[button];
     }
 
     public static int scroll(){

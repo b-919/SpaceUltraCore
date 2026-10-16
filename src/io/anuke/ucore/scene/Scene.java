@@ -92,7 +92,6 @@ public class Scene extends InputAdapter implements Disposable{
      */
     public Scene(){
         this(new SpriteBatch());
-        System.out.println("construct invoked");
         ownsBatch = true;
     }
 
@@ -102,6 +101,7 @@ public class Scene extends InputAdapter implements Disposable{
      */
     public Scene(Viewport viewport){
         this(new SpriteBatch());
+        this.viewport = viewport;
         ownsBatch = true;
     }
 
@@ -138,7 +138,6 @@ public class Scene extends InputAdapter implements Disposable{
         Batch old = Core.batch;
         Core.batch = batch;
 
-        Batch batch = this.batch;
         if(Core.batch instanceof ClipSpriteBatch){
             ((ClipSpriteBatch) Core.batch).enableClip(false);
         }
@@ -998,6 +997,10 @@ public class Scene extends InputAdapter implements Disposable{
     public void dispose(){
         clear();
         if(ownsBatch) batch.dispose();
+        if(debugShapes != null){
+            debugShapes.dispose();
+            debugShapes = null;
+        }
     }
 
     /** Check if screen coordinates are inside the viewport's screen area. */

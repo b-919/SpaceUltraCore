@@ -44,19 +44,11 @@ public class Core{
             scene = null;
         }
 
-        if(atlas != null){
-            atlas.dispose();
-            atlas = null;
-        }
-
         if(skin != null){
             skin.dispose();
             skin = null;
         }
-
-        if(font != null){
-            font.dispose();
-            font = null;
-        }
+        atlas = null;
+        font = null;
     }
 }
